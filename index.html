@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Аудио-видео редактор</title>
+  <style>
+    body { font-family: sans-serif; color: #222; background: #FAFAFA; }
+    .container { max-width: 540px; margin: 40px auto 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 0 8px #eee; padding: 30px 25px 25px; }
+    h1 { color: #4B3CAB; text-align: center; margin-bottom: 5px; }
+    .subtitle { text-align: center; margin-bottom: 35px; font-size: 1.1em; color: #7e57c2; }
+    label { display: block; font-weight: bold; margin-top: 18px; }
+    input, select { width: 100%; padding: 5px; margin-top: 8px; font-size: 1em; }
+    button { background: #4B3CAB; color: #fff; border: none; border-radius: 6px; margin-top: 20px; padding: 10px 0; width: 100%; font-size: 1.1em;}
+    textarea { width: 100%; padding: 10px; margin-top: 14px; font-size: 0.98em;}
+    .preview { margin-top: 28px; text-align: center; }
+    .hint { font-size: 0.97em; color: #999; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Аудио-видео редактор</h1>
+    <div class="subtitle">ТруАлинка рада прийти на помощь!</div>
+
+    <label for="filetype">Тип файла:</label>
+    <select id="filetype">
+      <option value="audio">Аудио</option>
+      <option value="video">Видео</option>
+    </select>
+
+    <label for="filename">Имя файла<br><span class="hint">(например, track1.mp3 или video1.mp4)</span></label>
+    <input type="text" id="filename" placeholder="track1.mp3" />
+
+    <button onclick="generate()">Получить embed-код</button>
+
+    <textarea id="result" rows="2" readonly placeholder="Здесь появится код для вставки"></textarea>
+
+    <div class="preview" id="preview"></div>
+    <div class="hint" style="margin-top:24px;">
+      Загружайте свои файлы в папку <b>/audio</b> или <b>/video</b> через Add file → Upload files.<br>
+      Введите имя загруженного файла, чтобы получить код.
+    </div>
+    <div class="hint" style="margin-top:12px; color:#d43f3a;"><b>Важно:</b> Имя файла должно полностью совпадать, включая расширение!</div>
+  </div>
+  <script>
+    function generate() {
+      const type = document.getElementById('filetype').value;
+      const filename = document.getElementById('filename').value.trim();
+      if (!filename) {
+        document.getElementById('result').value = 'Введите имя файла (например, track1.mp3)!';
+        document.getElementById('preview').innerHTML = '';
+        return;
+      }
+      const folder = type === 'audio' ? 'audio' : 'video';
+      const url = `${window.location.origin}${window.location.pathname.replace(/\/[^\/]*$/, '')}/embed.html?type=${type}&src=${encodeURIComponent(folder + '/' + filename)}`;
+      const code = `<iframe src="${url}" width="${type === 'audio' ? 350 : 500}" height="${type === 'audio' ? 60 : 300}" frameborder="0" allow="autoplay"></iframe>`;
+      document.getElementById('result').value = code;
+
+      // Покажем превью!
+      document.getElementById('preview').innerHTML = `<br>${code}`;
+    }
+  </script>
+</body>
+</html>
