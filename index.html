@@ -2,24 +2,32 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор iFrame-кода для аудиоплеера</title>
+  <title>Генератор iFrame для аудиоплеера</title>
+  <style>
+    body { font-family: sans-serif; }
+    input, textarea { width: 400px; max-width: 100%; }
+    textarea { margin-top: 10px; }
+    label { display: block; margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h2>Генерация iFrame кода для ваших файлов</h2>
-  <label>Имя файла (например, <b>audio/test.mp3</b>): <input type="text" id="filename" placeholder="audio/yourfile.mp3"></label>
-  <button onclick="generate()">Сгенерировать код</button>
-  <h3>Ваш iFrame:</h3>
-  <textarea id="code" rows="3" style="width:100%;"></textarea>
+  <h2>Генератор iFrame для аудиофайлов</h2>
+  <label>
+    Введите имя файла, который лежит в <b>audio/</b> (например: <i>song.mp3</i>):
+    <input type="text" id="filename" placeholder="song.mp3" />
+  </label>
+  <button onclick="generate()">Получить embed-код</button>
+  <textarea id="code" rows="4" readonly placeholder="Тут появится код"></textarea>
   <script>
     function generate() {
-      const filename = document.getElementById('filename').value.trim();
-      if (!filename) {
+      var filename = document.getElementById('filename').value.trim();
+      if(!filename) {
         document.getElementById('code').value = 'Введите имя файла!';
         return;
       }
-      let url = `https://trualinka.github.io/audio-editor/player.html?file=${encodeURIComponent(filename)}`;
-      let code = `<iframe src="${url}" width="300" height="60"></iframe>`;
-      document.getElementById('code').value = code;
+      var url = 'https://trualinka.github.io/audio-editor/player.html?file=audio/' + encodeURIComponent(filename);
+      var html = '<iframe src="' + url + '" width="300" height="60"></iframe>';
+      document.getElementById('code').value = html;
     }
   </script>
 </body>
