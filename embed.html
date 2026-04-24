@@ -2,48 +2,72 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Плеер аудио/видео</title>
+  <title>Аудио-видео редактор</title>
   <style>
-    body {
-      margin: 0; padding: 0; background: #fff;
-      font-family: sans-serif; font-size: 15px; color: #544B68;
-      display: flex; align-items: center; justify-content: center; min-height: 100vh;
-    }
-    .center { width: 98%; max-width: 540px; margin: 0 auto; }
-    audio, video { width: 100%; outline:none; }
+    body { font-family: sans-serif; color: #222; background: #FAFAFA; }
+    .container { max-width: 540px; margin: 40px auto 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 0 8px #eee; padding: 30px 25px 25px; }
+    h1 { color: #4B3CAB; text-align: center; margin-bottom: 5px; }
+    .subtitle { text-align: center; margin-bottom: 35px; font-size: 1.1em; color: #7e57c2; }
+    label { display: block; font-weight: bold; margin-top: 18px; }
+    input, select { width: 100%; padding: 5px; margin-top: 8px; font-size: 1em; }
+    button { background: #4B3CAB; color: #fff; border: none; border-radius: 6px; margin-top: 20px; padding: 10px 0; width: 100%; font-size: 1.1em;}
+    textarea { width: 100%; padding: 10px; margin-top: 14px; font-size: 0.98em;}
+    .field-label { font-size:0.95em; color:#777; margin-top:10px; }
+    .preview { margin-top: 28px; text-align: center; }
+    .hint { font-size: 0.97em; color: #999; margin-top: 2px; }
+    .direct-link-output { margin:12px 0 0 0; word-break:break-all; font-size:0.99em;}
+    .direct-link-input { width:100%; font-size:0.99em; padding:6px 6px;}
   </style>
 </head>
 <body>
-  <div class="center" id="player">
-    Загрузка...
+  <div class="container">
+    <h1>Аудио-видео редактор</h1>
+    <div class="subtitle">ТруАлинка рада прийти на помощь!</div>
+
+    <label for="filetype">Тип файла:</label>
+    <select id="filetype">
+      <option value="audio">Аудио</option>
+      <option value="video">Видео</option>
+    </select>
+
+    <label for="filename">Имя файла<br><span class="hint">(например, track1.mp3 или video1.mp4)</span></label>
+    <input type="text" id="filename" placeholder="track1.mp3" />
+
+    <button onclick="generate()">Получить embed-код</button>
+
+    <div class="field-label">Код для вставки на сайт (iframe):</div>
+    <textarea id="result" rows="2" readonly placeholder="Здесь появится код для вставки"></textarea>
+    
+    <div class="field-label">Прямая ссылка на плеер:</div>
+    <input id="directLink" class="direct-link-input" readonly onclick="this.select()" placeholder="Здесь будет ссылка"/>
+
+    <div class="preview" id="preview"></div>
+    <div class="hint" style="margin-top:24px;">
+      Загружайте свои файлы в папку <b>/audio</b> или <b>/video</b> через Add file → Upload files.<br>
+      Введите имя загруженного файла, чтобы получить код.
+    </div>
+    <div class="hint" style="margin-top:12px; color:#d43f3a;"><b>Важно:</b> Имя файла должно полностью совпадать, включая расширение!</div>
   </div>
   <script>
-    // Получаем параметры из URL
-    const params = new URLSearchParams(window.location.search);
-    const type = params.get('type');
-    const src = params.get('src'); // НЕ обрабатываем и не меняем src!
+    function generate() {
+      const type = document.getElementById('filetype').value;
+      const filename = document.getElementById('filename').value.trim();
+      if (!filename) {
+        document.getElementById('result').value = 'Введите имя файла (например, track1.mp3)!';
+        document.getElementById('preview').innerHTML = '';
+        document.getElementById('directLink').value = '';
+        return;
+      }
+      const folder = type === 'audio' ? 'audio' : 'video';
+      // генерируем ссылку на плеер
+      const url = `${window.location.origin}${window.location.pathname.replace(/\/[^\/]*$/, '')}/embed.html?type=${type}&src=${encodeURIComponent(folder + '/' + filename)}`;
+      const code = `<iframe src="${url}" width="${type === 'audio' ? 350 : 500}" height="${type === 'audio' ? 60 : 300}" frameborder="0" allow="autoplay"></iframe>`;
+      
+      document.getElementById('result').value = code;
+      document.getElementById('directLink').value = url;
 
-    // Генерируем полный абсолютный путь к файлу
-    function getAbsoluteUrl() {
-      if (!src) return null;
-      // Если src абсолютный — используем его как есть
-      if (src.startsWith('http')) return src;
-      // Если src относительный — строим от корня сайта
-      const base = window.location.origin + window.location.pathname.replace(/\/embed.html.*$/, '/');
-      return base + src;
-    }
-    const fullUrl = getAbsoluteUrl();
-    const ext = (src || '').split('.').pop().toLowerCase();
-
-    // Проверяем и выводим плеер
-    if (!type || !src) {
-      document.getElementById('player').innerHTML = '<span style="color:#d43f3a;">Ошибка: Не указан аудио/видео-файл.</span>';
-    } else if (type === 'audio' && (ext === 'mp3' || ext === 'ogg' || ext === 'wav')) {
-      document.getElementById('player').innerHTML = `<audio controls autoplay src="${fullUrl}">Ваш браузер не поддерживает аудио.</audio>`;
-    } else if (type === 'video' && (ext === 'mp4' || ext === 'webm' || ext === 'mov')) {
-      document.getElementById('player').innerHTML = `<video controls autoplay src="${fullUrl}" style="background:#222;">Ваш браузер не поддерживает видео.</video>`;
-    } else {
-      document.getElementById('player').innerHTML = `<span style="color:#d43f3a;">Неподдерживаемый тип файла или расширения.</span>`;
+      // Покажем превью
+      document.getElementById('preview').innerHTML = `<br>${code}`;
     }
   </script>
 </body>
