@@ -18,31 +18,25 @@
     Загрузка...
   </div>
   <script>
-    // Получаем параметры
+    // Получаем параметры из URL
     const params = new URLSearchParams(window.location.search);
     const type = params.get('type');
-    const src = params.get('src');
+    const src = params.get('src'); // НЕ обрабатываем и не меняем src!
 
-    // Проверяем, что src представлен и очищаем лишнее
-    function cleanSrc(s) {
-      // Не кодируем % (чтобы CD1%20T07.mp3 работал!)
-      return s ? s.replace(/[^A-Za-z0-9._\-\/%]/g, '') : '';
-    }
-    const safeSrc = cleanSrc(src);
-
-    // Генерируем абсолютную ссылку
+    // Генерируем полный абсолютный путь к файлу
     function getAbsoluteUrl() {
-      if (!safeSrc) return null;
-      // Если src уже абсолютный — использовать как есть
-      if (safeSrc.startsWith('http')) return safeSrc;
-      // Если src относительный — присоединим к origin + path до /embed.html
+      if (!src) return null;
+      // Если src абсолютный — используем его как есть
+      if (src.startsWith('http')) return src;
+      // Если src относительный — строим от корня сайта
       const base = window.location.origin + window.location.pathname.replace(/\/embed.html.*$/, '/');
-      return base + safeSrc;
+      return base + src;
     }
     const fullUrl = getAbsoluteUrl();
-    const ext = (safeSrc || '').split('.').pop().toLowerCase();
+    const ext = (src || '').split('.').pop().toLowerCase();
 
-    if (!type || !safeSrc) {
+    // Проверяем и выводим плеер
+    if (!type || !src) {
       document.getElementById('player').innerHTML = '<span style="color:#d43f3a;">Ошибка: Не указан аудио/видео-файл.</span>';
     } else if (type === 'audio' && (ext === 'mp3' || ext === 'ogg' || ext === 'wav')) {
       document.getElementById('player').innerHTML = `<audio controls autoplay src="${fullUrl}">Ваш браузер не поддерживает аудио.</audio>`;
