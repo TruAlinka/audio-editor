@@ -2,22 +2,25 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор embed аудио</title>
+  <title>Генератор iFrame-кода для аудиоплеера</title>
 </head>
 <body>
-  <h2>Генератор iFrame для аудио</h2>
-  <input type="text" id="filename" placeholder="song.mp3"><br>
-  <button onclick="generate()">Получить embed-код</button>
+  <h2>Генерация iFrame кода для ваших файлов</h2>
+  <label>Имя файла (например, <b>audio/test.mp3</b>): <input type="text" id="filename" placeholder="audio/yourfile.mp3"></label>
+  <button onclick="generate()">Сгенерировать код</button>
+  <h3>Ваш iFrame:</h3>
   <textarea id="code" rows="3" style="width:100%;"></textarea>
-
-<script>
-  function generate() {
-    let repo = 'YOURNAME/REPO'; // поменять на свой github username/repo
-    let file = document.getElementById('filename').value.trim();
-    let url = `https://${repo}.github.io/player.html?file=audio/${file}`;
-    let code = `<iframe src="${url}" width="300" height="60"></iframe>`;
-    document.getElementById('code').value = code;
-  }
-</script>
+  <script>
+    function generate() {
+      const filename = document.getElementById('filename').value.trim();
+      if (!filename) {
+        document.getElementById('code').value = 'Введите имя файла!';
+        return;
+      }
+      let url = `https://trualinka.github.io/audio-editor/player.html?file=${encodeURIComponent(filename)}`;
+      let code = `<iframe src="${url}" width="300" height="60"></iframe>`;
+      document.getElementById('code').value = code;
+    }
+  </script>
 </body>
 </html>
